@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, FlatList, Text, TouchableOpacity} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import Feed from '../components/Feed';
 import axios from 'axios';
 import {connect} from 'react-redux';
@@ -11,6 +18,7 @@ class HomeScreen extends Component {
     this.state = {
       newsList: [],
       page: 0,
+      loading: true,
     };
   }
 
@@ -19,13 +27,11 @@ class HomeScreen extends Component {
   }
 
   fetchNews = () => {
-    console.log('fetch', this.state.page);
     axios
       .get(`https://hn.algolia.com/api/v1/search?page=${this.state.page}`)
       .then((response) => {
-        console.log(response.data);
         const newsList = response.data.hits;
-        this.setState({newsList});
+        this.setState({newsList, loading: false});
       });
   };
 
@@ -37,14 +43,50 @@ class HomeScreen extends Component {
 
   nextPage = () => {
     const page = this.state.page + 1;
-    this.setState({page});
-    this.fetchNews();
+    this.setState({page, loading: true}, () => {
+      this.fetchNews();
+    });
   };
 
   previousPage = () => {
     const page = this.state.page - 1;
-    this.setState({page});
-    this.fetchNews();
+    this.setState({page, loading: true}, () => {
+      this.fetchNews();
+    });
+  };
+
+  handleScrollNext = () => {
+    const page = this.state.page + 1;
+    this.setState({page, loading: true}, () => {
+      this.handleInfiniteLoad();
+    });
+  };
+
+  handleInfiniteLoad = () => {
+    axios
+      .get(`https://hn.algolia.com/api/v1/search?page=${this.state.page}`)
+      .then((response) => {
+        const newsList = [...this.state.newsList, ...response.data.hits];
+        this.setState({newsList, loading: false});
+      });
+  };
+
+  _renderFooter = () => {
+    if (!this.state.loading) return null;
+
+    return (
+      <View
+        style={{
+          position: 'relative',
+          width: '100%',
+          paddingVertical: 20,
+          borderTopWidth: 1,
+          marginTop: 10,
+          marginBottom: 10,
+        }}>
+        <ActivityIndicator animating size="large" />
+      </View>
+    );
   };
 
   render() {
@@ -83,7 +125,11 @@ class HomeScreen extends Component {
               deleteFeed={this.handleDeleteFeed}
             />
           )}
+          keyExtractor={(item) => item.objectID}
           contentContainerStyle={{paddingBottom: 220}}
+          onEndReached={this.handleScrollNext}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={this._renderFooter}
         />
       </View>
     );

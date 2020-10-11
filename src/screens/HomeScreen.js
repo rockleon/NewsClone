@@ -23,6 +23,7 @@ class HomeScreen extends Component {
     axios
       .get(`https://hn.algolia.com/api/v1/search?page=${this.state.page}`)
       .then((response) => {
+        console.log(response.data);
         const newsList = response.data.hits;
         this.setState({newsList});
       });

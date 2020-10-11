@@ -51,7 +51,7 @@ class Feed extends Component {
               name="triangle"
               size={15}
               style={{...styles.count, paddingTop: 3, paddingRight: 5}}
-              onPress={() => this.handleUpvote(news.objectId)}
+              onPress={() => this.handleUpvote(news.objectID)}
             />
           </View>
           <View>

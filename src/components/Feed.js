@@ -23,7 +23,6 @@ class Feed extends Component {
   };
 
   handleUpvote = (id) => {
-    console.log(id);
     const payload = {
       id,
       timestamp: moment.now(),

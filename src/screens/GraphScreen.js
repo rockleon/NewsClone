@@ -13,13 +13,18 @@ class GraphScreen extends Component {
     let data = [];
     let labels = [];
     let index;
-    this.props.upvotes.map((obj) => {
-      index = labels.indexOf(obj.id);
-      if (index === -1) {
-        labels.push(obj.id);
-        data.push(1);
-      } else data[index] += 1;
-    });
+    let noData;
+    if (!this.props.upvotes.length) {
+      noData = <Text style={{fontSize: 16}}>No upvotes found</Text>;
+    } else {
+      this.props.upvotes.map((obj) => {
+        index = labels.indexOf(obj.id);
+        if (index === -1) {
+          labels.push(obj.id);
+          data.push(1);
+        } else data[index] += 1;
+      });
+    }
 
     console.log(labels, data);
 
@@ -28,6 +33,7 @@ class GraphScreen extends Component {
         <View style={styles.row}>
           <Text style={styles.heading}>Upvotes Per Feed</Text>
         </View>
+        <View style={styles.row}>{noData}</View>
         <View style={{...styles.row, height: 300}}>
           <YAxis
             data={data}
